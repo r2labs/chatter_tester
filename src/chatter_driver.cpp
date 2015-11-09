@@ -1,6 +1,5 @@
 #include "chatter_driver.hpp"
 #include "std_msgs/String.h"
-#include "srv/user_input.h"
 #include "math.h"
 #include <sstream>
 #include <trajectory_msgs/JointTrajectory.h>
@@ -40,7 +39,7 @@ void chatter_driver::spin() {
 
         get_coords(x, y, z, ga);
         set_arm(x, y, z, ga, bas_us, shl_us, elb_us, wri_us);
-        
+
         traj.points[0].positions[0] = bas_us;
         traj.points[0].positions[1] = shl_us;
         traj.points[0].positions[2] = elb_us;
@@ -58,7 +57,7 @@ void chatter_driver::get_coords(const srv::user_input::ConstPtr& msg) {
     y = msg->pick_Y;
     z = msg->pick_Z;
     ga = 0.0;
-    
+
     /*TODO: FIGURE OUT WHERE TO STORE PLACE YOURSELF :)*/
 }
 
@@ -72,23 +71,20 @@ int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
     float z_prime = z - BASE_HGT - (sin(grip_angle_r)*GRIPPER);
     float r_prime = r - (cos(grip_angle_r)*GRIPPER);
     float q = sqrt(pow(r_prime,2) + pow(z_prime,2));
-    if(y>=0)
-    {
+    if(y>=0) {
         float shoulder_angle_r = atan2(z_prime, r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
     }
-    else
-    {
+    else {
         float shoulder_angle_r = atan2(z_prime, -r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
     }
-    if (isnan(shoulder_angle_r) || isinf(shoulder_angle_r))
-    {
+    if (isnan(shoulder_angle_r) || isinf(shoulder_angle_r)) {
         return IK_ERROR;
     }
 
-    
+
     float elbow_angle_r = acos((pow(HUMERUS,2)+pow(ULNA,2)-pow(q,2))/(2*HUMERUS*ULNA));
     float wrist_angle_r = (3*M_PI/2) - elbow_angle_r - shoulder_angle_r + grip_angle_r;
-    
+
     shl_angle_d = degrees(shoulder_angle_r);
     elb_angle_d = degrees(elbow_angle_r);
     wri_angle_d = degrees(wrist_angle_r);
@@ -114,9 +110,9 @@ int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
     shl_us = radians(shl_pos);
     elb_us = radians(elb_pos);
     wri_us = radians(wri_pos);
-    
-    
-    
+
+
+
     //TODO: ADD GRIP CLOSE/OPEN
 }
 
