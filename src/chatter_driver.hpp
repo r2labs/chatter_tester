@@ -2,30 +2,33 @@
 #include <string>
 #include <ros/ros.h>
 #include "chatter.hpp"
+#include "chatter_tester/user_input.h"
 
 class chatter_driver {
 public:
     std::string whoami;
     ros::NodeHandle nh;
+    ros::Subscriber sub;
     chatter chat;
 
-    chatter_driver(ros::NodeHandle &nh) {
-        whoami = "I'm chatter!";
-        this->nh = nh;
-        this->sub = nh.subscribe("user_interface", 10, get_coords);
-        chat = chatter();
-        
-    }
+    float x, y, z, ga;
 
     void spin();
-    void get_coords(float& x, float& y, float& z, float& ga);
+    void get_coords(const chatter_tester::user_input::Request msg);
     int set_arm(float x, float y, float z, float ga,
                 float& bas_us, float& shl_us, float& elb_us,
                 float& wri_us);
     float lerp(float x, float x_min, float x_max, float y_min, float y_max);
-    
+
     void grip_close();
     void grip_open();
+
+    chatter_driver(ros::NodeHandle &nh) {
+        whoami = "I'm chatter!";
+        this->nh = nh;
+        this->sub = nh.subscribe("user_interface", 10, &chatter_driver::get_coords, this);
+        chat = chatter();
+    }
 
     inline double degrees(double radians) {
         return radians * (180.0 / M_PI);
@@ -66,7 +69,7 @@ public:
 
 #define SERVO_MIN_US 600
 #define SERVO_MAX_US 2400
-   
+
 // Speed adjustment parameters
 // Percentages (1.0 = 100%) - applied to all arm movements
 #define SPEED_MIN 0.5
@@ -103,4 +106,3 @@ public:
     float hum_sq = HUMERUS*HUMERUS;
     float uln_sq = ULNA*ULNA;
 };
-

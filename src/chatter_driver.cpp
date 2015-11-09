@@ -37,7 +37,7 @@ void chatter_driver::spin() {
     float bas_us, shl_us, elb_us, wri_us, x, y, z, ga;
     while (ros::ok) {
 
-        get_coords(x, y, z, ga);
+        /* get_coords(x, y, z, ga); */
         set_arm(x, y, z, ga, bas_us, shl_us, elb_us, wri_us);
 
         traj.points[0].positions[0] = bas_us;
@@ -52,12 +52,11 @@ void chatter_driver::spin() {
 }
 
 /* TODO: get coordinates from python website */
-void chatter_driver::get_coords(const srv::user_input::ConstPtr& msg) {
-    x = msg->pick_X;
-    y = msg->pick_Y;
-    z = msg->pick_Z;
+void chatter_driver::get_coords(const chatter_tester::user_input::Request msg) {
+    x = msg.pick_X;
+    y = msg.pick_Y;
+    z = msg.pick_Z;
     ga = 0.0;
-
     /*TODO: FIGURE OUT WHERE TO STORE PLACE YOURSELF :)*/
 }
 
@@ -118,7 +117,6 @@ int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
 float chatter_driver::lerp(float x, float x_min, float x_max, float y_min, float y_max) {
     if (x > x_max) { return y_max; }
     else if (x < x_min) { return y_min; }
-    /* TODO: send information to the IFC */
     return y_min + (y_min - y_max)*((x - x_min)/(x_max - x_min));
 }
 
