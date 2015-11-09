@@ -62,33 +62,32 @@ void chatter_driver::get_coords(const srv::user_input::ConstPtr& msg) {
 }
 
 int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
-                             float& bas_us, float& shl_us, float& elb_us,
-                             float& wri_us) {
+                            float& bas_us, float& shl_us, float& elb_us,
+                            float& wri_us) {
 
-    float grip_angle_r = radians(grip_angle_degrees);
-    float base_angle_r = atan2(y, -x);
+    float gri_angle_r = radians(grip_angle_degrees);
+    float bas_angle_r = atan2(y, -x);
     float r = sqrt(pow(x,2) + pow(y,2));
-    float z_prime = z - BASE_HGT - (sin(grip_angle_r)*GRIPPER);
-    float r_prime = r - (cos(grip_angle_r)*GRIPPER);
+    float z_prime = z - BASE_HGT - (sin(gri_angle_r)*GRIPPER);
+    float r_prime = r - (cos(gri_angle_r)*GRIPPER);
     float q = sqrt(pow(r_prime,2) + pow(z_prime,2));
+    float shl_angle_r;
     if(y>=0) {
-        float shoulder_angle_r = atan2(z_prime, r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
+        shl_angle_r = atan2(z_prime, r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
     }
     else {
-        float shoulder_angle_r = atan2(z_prime, -r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
+        shl_angle_r = atan2(z_prime, -r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
     }
-    if (isnan(shoulder_angle_r) || isinf(shoulder_angle_r)) {
+    if (isnan(shl_angle_r) || isinf(shl_angle_r)) {
         return IK_ERROR;
     }
 
+    float elb_angle_r = acos((pow(HUMERUS,2)+pow(ULNA,2)-pow(q,2))/(2*HUMERUS*ULNA));
+    float wri_angle_r = (3*M_PI/2) - elb_angle_r - shl_angle_r + gri_angle_r;
 
-    float elbow_angle_r = acos((pow(HUMERUS,2)+pow(ULNA,2)-pow(q,2))/(2*HUMERUS*ULNA));
-    float wrist_angle_r = (3*M_PI/2) - elbow_angle_r - shoulder_angle_r + grip_angle_r;
-
-    shl_angle_d = degrees(shoulder_angle_r);
-    elb_angle_d = degrees(elbow_angle_r);
-    wri_angle_d = degrees(wrist_angle_r);
-
+    float shl_angle_d = degrees(shl_angle_r);
+    float elb_angle_d = degrees(elb_angle_r);
+    float wri_angle_d = degrees(wri_angle_r);
 
     // Calculate servo angles
     // Calc relative to servo midpoint to allow compensation for servo alignment
