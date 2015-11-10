@@ -16,8 +16,8 @@ public:
     void spin();
     void get_coords(const chatter_tester::user_input::Request msg);
     int set_arm(float x, float y, float z, float ga,
-                float& bas_us, float& shl_us, float& elb_us,
-                float& wri_us);
+                float& bas_r, float& shl_r, float& elb_r,
+                float& wri_r);
     float lerp(float x, float x_min, float x_max, float y_min, float y_max);
 
     void grip_close();

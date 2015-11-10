@@ -61,8 +61,8 @@ void chatter_driver::get_coords(const chatter_tester::user_input::Request msg) {
 }
 
 int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
-                            float& bas_us, float& shl_us, float& elb_us,
-                            float& wri_us) {
+                            float& bas_r, float& shl_r, float& elb_r,
+                            float& wri_r) {
 
     float gri_angle_r = radians(grip_angle_degrees);
     float bas_angle_r = atan2(y, -x);
@@ -90,28 +90,22 @@ int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
 
     // Calculate servo angles
     // Calc relative to servo midpoint to allow compensation for servo alignment
-    float bas_pos = BAS_MID + degrees(bas_angle_r);
-    float shl_pos = SHL_MID + (shl_angle_d - 90.0);
-    float elb_pos = ELB_MID - (elb_angle_d - 90.0);
-    float wri_pos = WRI_MID + wri_angle_d;
+    float bas_pos = degrees(bas_angle_r);
+    float shl_pos = shl_angle_d;
+    float elb_pos = elb_angle_d;
+    float wri_pos = wri_angle_d;
 
     // If any servo ranges are exceeded, return an error
     if (bas_pos < BAS_MIN || bas_pos > BAS_MAX || shl_pos < SHL_MIN || shl_pos > SHL_MAX || elb_pos < ELB_MIN || elb_pos > ELB_MAX || wri_pos < WRI_MIN || wri_pos > WRI_MAX)
         return IK_ERROR;
 
     //TODO: This block should call a function that sends microseconds to TM4C
-    // bas_us = lerp(bas_pos, 0, 180, SERVO_MIN_US, SERVO_MAX_US);
-    // shl_us = lerp(shl_pos, 0, 180, SERVO_MIN_US, SERVO_MAX_US);
-    // elb_us = lerp(elb_pos, 0, 180, SERVO_MIN_US, SERVO_MAX_US);
-    // wri_us = lerp(wri_pos, 0, 180, SERVO_MIN_US, SERVO_MAX_US);
-    bas_us = radians(bas_pos);
-    shl_us = radians(shl_pos);
-    elb_us = radians(elb_pos);
-    wri_us = radians(wri_pos);
+    bas_r = radians(bas_pos);
+    shl_r = radians(shl_pos);
+    elb_r = radians(elb_pos);
+    wri_r = radians(wri_pos);
 
-
-
-    //TODO: ADD GRIP CLOSE/OPEN
+    return IK_SUCCESS;
 }
 
 float chatter_driver::lerp(float x, float x_min, float x_max, float y_min, float y_max) {
