@@ -26,7 +26,7 @@ void chatter_driver::spin() {
     trajectory_msgs::JointTrajectoryPoint p;
     p.time_from_start = ros::Duration(0);
     for (int i=0; i<5; ++i) {
-        p.positions.push_back(-0.1);
+        p.positions.push_back(0.0);
         p.velocities.push_back(0.0);
         p.accelerations.push_back(0.0);
         p.effort.push_back(0.0);
@@ -34,16 +34,20 @@ void chatter_driver::spin() {
     traj.points.push_back(p);
     traj.header.stamp = ros::Time::now();
 
-    float bas_us, shl_us, elb_us, wri_us, x, y, z, ga;
+    float bas_us, shl_us, elb_us, wri_us;
+    int ret;
     while (ros::ok) {
 
         /* get_coords(x, y, z, ga); */
-        set_arm(x, y, z, ga, bas_us, shl_us, elb_us, wri_us);
+        ret = set_arm(bas_us, shl_us, elb_us, wri_us);
 
         traj.points[0].positions[0] = bas_us;
         traj.points[0].positions[1] = shl_us;
         traj.points[0].positions[2] = elb_us;
         traj.points[0].positions[3] = wri_us;
+        traj.points[0].positions[4] = 1.57;
+
+        ROS_INFO("LOOP: x: %f y: %f z: %f b: %f s: %f e: %f w: %f", x, y, z, bas_us, shl_us, elb_us, wri_us);
 
         chatter_pub.publish(traj);
         ros::spinOnce();
@@ -57,14 +61,14 @@ void chatter_driver::get_coords(const chatter_tester::user_input::Request msg) {
     y = msg.pick_Y;
     z = msg.pick_Z;
     ga = 0.0;
+    ROS_INFO("getcoords: x: %f y: %f z: %f", x, y, z);
     /*TODO: FIGURE OUT WHERE TO STORE PLACE YOURSELF :)*/
 }
 
-int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
-                            float& bas_r, float& shl_r, float& elb_r,
+int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
                             float& wri_r) {
 
-    float gri_angle_r = radians(grip_angle_degrees);
+    float gri_angle_r = radians(ga);
     float bas_angle_r = atan2(y, -x);
     float r = sqrt(pow(x,2) + pow(y,2));
     float z_prime = z - BASE_HGT - (sin(gri_angle_r)*GRIPPER);
@@ -78,7 +82,8 @@ int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
         shl_angle_r = atan2(z_prime, -r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
     }
     if (isnan(shl_angle_r) || isinf(shl_angle_r)) {
-        return IK_ERROR;
+      ROS_INFO("shl angle nan/inf");
+      return IK_ERROR;
     }
 
     float elb_angle_r = acos((pow(HUMERUS,2)+pow(ULNA,2)-pow(q,2))/(2*HUMERUS*ULNA));
@@ -96,8 +101,10 @@ int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
     float wri_pos = wri_angle_d;
 
     // If any servo ranges are exceeded, return an error
-    if (bas_pos < BAS_MIN || bas_pos > BAS_MAX || shl_pos < SHL_MIN || shl_pos > SHL_MAX || elb_pos < ELB_MIN || elb_pos > ELB_MAX || wri_pos < WRI_MIN || wri_pos > WRI_MAX)
-        return IK_ERROR;
+    /* if (bas_pos < BAS_MIN || bas_pos > BAS_MAX || shl_pos < SHL_MIN || shl_pos > SHL_MAX || elb_pos < ELB_MIN || elb_pos > ELB_MAX || wri_pos < WRI_MIN || wri_pos > WRI_MAX) { */
+    /*   ROS_ERROR("angles exceeded"); */
+    /*     return IK_ERROR; */
+    /* } */
 
     //TODO: This block should call a function that sends microseconds to TM4C
     bas_r = radians(bas_pos);
@@ -105,6 +112,7 @@ int chatter_driver::set_arm(float x, float y, float z, float grip_angle_degrees,
     elb_r = radians(elb_pos);
     wri_r = radians(wri_pos);
 
+    ROS_INFO("setarm: x: %f y: %f z: %f b: %f s: %f e: %f w: %f", x, y, z, bas_r, shl_r, elb_r, wri_r);
     return IK_SUCCESS;
 }
 
@@ -163,7 +171,10 @@ void chatter_driver::grip_open()
 //             // Make sure no two joints have the same channel
 //             ROS_ASSERT(channels[joint->properties.channel] == NULL);
 
-//             // Make sure no two joints have the same name
+//             // Make
+
+
+ /* sure no two joints have the same name */
 //             ROS_ASSERT(joints_map.find(joint->name) == joints_map.end());
 
 //             channels[joint->properties.channel] = joint;

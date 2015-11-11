@@ -6,7 +6,6 @@
 
 class chatter_driver {
 public:
-    std::string whoami;
     ros::NodeHandle nh;
     ros::Subscriber sub;
     chatter chat;
@@ -15,8 +14,7 @@ public:
 
     void spin();
     void get_coords(const chatter_tester::user_input::Request msg);
-    int set_arm(float x, float y, float z, float ga,
-                float& bas_r, float& shl_r, float& elb_r,
+    int set_arm(float& bas_r, float& shl_r, float& elb_r,
                 float& wri_r);
     float lerp(float x, float x_min, float x_max, float y_min, float y_max);
 
@@ -24,9 +22,8 @@ public:
     void grip_open();
 
     chatter_driver(ros::NodeHandle &nh) {
-        whoami = "I'm chatter!";
         this->nh = nh;
-        this->sub = nh.subscribe("user_interface", 10, &chatter_driver::get_coords, this);
+        this->sub = nh.subscribe("/user_interface", 1, &chatter_driver::get_coords, this);
         chat = chatter();
     }
 
