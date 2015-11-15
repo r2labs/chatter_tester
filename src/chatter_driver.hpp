@@ -36,9 +36,9 @@ public:
     }
     // Arm dimensions (mm). Standard AL5D arm, as measured by Johnathan and Stormy
 #define BASE_HGT 69.0       // Base height to X/Y plane
-#define HUMERUS 146.0       // Shoulder-to-elbow "bone"
-#define ULNA 184.5          // Elbow-to-wrist "bone"
-#define GRIPPER 72.0        // Gripper length, to middle of grip surface
+#define HUMERUS 143.0       // Shoulder-to-elbow "bone"
+#define ULNA 182          // Elbow-to-wrist "bone"
+#define GRIPPER 72.25        // Gripper length, to middle of grip surface
 
 // Set physical limits (in degrees) per servo/joint.
 // Will vary for each servo/joint, depending on mechanical range of motion.
