@@ -100,6 +100,6 @@ public:
 // float Speed = SPEED_DEFAULT;
 
 // Pre-calculations
-    float hum_sq = HUMERUS*HUMERUS;
-    float uln_sq = ULNA*ULNA;
+    float humerus_squared = HUMERUS*HUMERUS;
+    float ulna_squared = ULNA*ULNA;
 };

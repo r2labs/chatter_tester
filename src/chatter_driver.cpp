@@ -67,6 +67,18 @@ void chatter_driver::get_coords(const chatter_tester::user_input::Request msg) {
 
 int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
                             float& wri_r) {
+    /*TODO: ADD GRIPPER STUFF*/
+    float r = sqrt(pow(x,2)+pow(y,2));      //distance from axis of rotation of base to x,y
+    float s = r - GRIPPER;                  //distance from axis of rotation of base to wrist axis
+    float q = sqrt(pow(s,2)+pow(z,2));      //distance from shoulder axis to wrist axis
+    float f = atan2(z,s);                   //angle between horizontal and q
+    float g = acos((humerus_squared+pow(q,2)-ulna_squared)/(2*HUMERUS*q));//angle between q and humerus (Law of Cosines)
+    float a = f+g;                          //angle between horizontal and humerus
+    float b = acos((ulna_squared + humerus_squared - pow(q,2))/(2*HUMERUS*ULNA));//angle between humerus and ulna (Law of Cosines)
+    float c = -b - a + 2*M_PI;              //angle between ulna and wrist (keeping wrist parallel with horizontal)
+    float d = atan2(x,y);                   //angle of base;
+    
+    /*begin old stuff
 
     float gri_angle_r = radians(ga);
     float bas_angle_r = atan2(y, -x);
@@ -88,31 +100,21 @@ int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
 
     float elb_angle_r = acos((pow(HUMERUS,2)+pow(ULNA,2)-pow(q,2))/(2*HUMERUS*ULNA));
     float wri_angle_r = (3*M_PI/2) - elb_angle_r - shl_angle_r + gri_angle_r;
-
-    float shl_angle_d = degrees(shl_angle_r);
-    float elb_angle_d = degrees(elb_angle_r);
-    float wri_angle_d = degrees(wri_angle_r);
+     
+    float shoulder_angle_degrees = degrees(a);
+    float elbow_angle_degrees = degrees(b);
+    float wrist_angle_degrees = degrees(c);
+    float base_angle_degrees = degrees(d);
 
     // Calculate servo angles
     // Calc relative to servo midpoint to allow compensation for servo alignment
-    float bas_pos = degrees(bas_angle_r);
-    float shl_pos = shl_angle_d;
-    float elb_pos = elb_angle_d;
-    float wri_pos = wri_angle_d;
+    float bas_pos = base_angle_degrees;
+    float shl_pos = shoulder_angle_degrees;
+    float elb_pos = elbow_angle_degrees;
+    float wri_pos = wrist_angle_degrees;
+    */ //end old stuff
 
-    // If any servo ranges are exceeded, return an error
-    /* if (bas_pos < BAS_MIN || bas_pos > BAS_MAX || shl_pos < SHL_MIN || shl_pos > SHL_MAX || elb_pos < ELB_MIN || elb_pos > ELB_MAX || wri_pos < WRI_MIN || wri_pos > WRI_MAX) { */
-    /*   ROS_ERROR("angles exceeded"); */
-    /*     return IK_ERROR; */
-    /* } */
-
-    //TODO: This block should call a function that sends microseconds to TM4C
-    bas_r = radians(bas_pos);
-    shl_r = radians(shl_pos);
-    elb_r = radians(elb_pos);
-    wri_r = radians(wri_pos);
-
-    ROS_INFO("setarm: x: %f y: %f z: %f b: %f s: %f e: %f w: %f", x, y, z, bas_r, shl_r, elb_r, wri_r);
+    ROS_INFO("setarm: x: %f y: %f z: %f b: %f s: %f e: %f w: %f", x, y, z, d, a, b, c);
     return IK_SUCCESS;
 }
 
