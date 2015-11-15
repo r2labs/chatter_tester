@@ -68,16 +68,31 @@ void chatter_driver::get_coords(const chatter_tester::user_input::Request msg) {
 int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
                             float& wri_r) {
     /*TODO: ADD GRIPPER STUFF*/
-    float r = sqrt(pow(x,2)+pow(y,2));      //distance from axis of rotation of base to x,y
-    float s = r - GRIPPER;                  //distance from axis of rotation of base to wrist axis
-    float q = sqrt(pow(s,2)+pow(z,2));      //distance from shoulder axis to wrist axis
-    float f = atan2(z,s);                   //angle between horizontal and q
-    float g = acos((humerus_squared+pow(q,2)-ulna_squared)/(2*HUMERUS*q));//angle between q and humerus (Law of Cosines)
-    float a = f+g;                          //angle between horizontal and humerus
+
+    float gri_angle_r = radians(ga);
+    float z_prime = z - BASE_HGT - (sin(gri_angle_r)*GRIPPER);
+    float r = sqrt(pow(x,2)+pow(y,2));         //distance from axis of rotation of base to x,y
+    float s = r - (cos(gri_angle_r)*GRIPPER);  //distance from axis of rotation of base to wrist axis
+    float q = sqrt(pow(s,2)+pow(z_prime,2));   //distance from shoulder axis to wrist axis
+    float f = atan2(z_prime,s);                 //angle between horizontal and q
+    float g = acos((humerus_squared+pow(q,2)-ulna_squared)/(2*HUMERUS*q));   //angle between q and humerus (Law of Cosines)
+    float a = f+g;                              //angle between horizontal and humerus
     float b = acos((ulna_squared + humerus_squared - pow(q,2))/(2*HUMERUS*ULNA));//angle between humerus and ulna (Law of Cosines)
-    float c = -b - a + 2*M_PI;              //angle between ulna and wrist (keeping wrist parallel with horizontal)
-    float d = atan2(x,y);                   //angle of base;
-    
+    float wrist_angle_r;
+    if (gri_angle_r>=0) {
+       wrist_angle_r = 3*M_PI_2 - a - b + gri_angle_r;
+    }
+    else {
+       wrist_angle_r = 3*M_PI_2 - a - b - gri_angle_r;
+    }
+    float d = atan2(y,-x);                   //angle of base;
+
+    //IS THIS RIGHT????
+    bas_r = d;
+    shl_r = a;
+    elb_r = b;
+    wri_r = wrist_angle_r;
+
     /*begin old stuff
 
     float gri_angle_r = radians(ga);
