@@ -60,7 +60,7 @@ void chatter_driver::get_coords(const chatter_tester::user_input::Request msg) {
     x = msg.pick_X;
     y = msg.pick_Y;
     z = msg.pick_Z;
-    ga = 0.0;
+    ga = 0.0; //angle of gripper with respect to horizontal (-90 to 90 degrees)
     ROS_INFO("getcoords: x: %f y: %f z: %f", x, y, z);
     /*TODO: FIGURE OUT WHERE TO STORE PLACE YOURSELF :)*/
 }
@@ -70,24 +70,18 @@ int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
     /*TODO: ADD GRIPPER STUFF*/
 
     float gri_angle_r = radians(ga);
-    float z_prime = z - BASE_HGT - (sin(gri_angle_r)*GRIPPER);
-    float r = sqrt(pow(x,2)+pow(y,2));         //distance from axis of rotation of base to x,y
-    float s = r - (cos(gri_angle_r)*GRIPPER);  //distance from axis of rotation of base to wrist axis
+    float z_prime = z - BASE_HGT - (sin(gri_angle_r)*GRIPPER); //vertical distance from shoulder axis to wrist axis
+    float r = sqrt(pow(x,2)+pow(y,2));         //distance from axis of rotation of base to position in x-y plane
+    float s = r - (cos(gri_angle_r)*GRIPPER);  //distance from axis of rotation of base to wrist axis in x-y plane
     float q = sqrt(pow(s,2)+pow(z_prime,2));   //distance from shoulder axis to wrist axis
-    float f = atan2(z_prime,s);                 //angle between horizontal and q
+    float f = atan2(z_prime,s);                //angle between horizontal and q
     float g = acos((humerus_squared+pow(q,2)-ulna_squared)/(2*HUMERUS*q));   //angle between q and humerus (Law of Cosines)
-    float a = f+g;                              //angle between horizontal and humerus
-    float b = acos((ulna_squared + humerus_squared - pow(q,2))/(2*HUMERUS*ULNA));//angle between humerus and ulna (Law of Cosines)
-    float wrist_angle_r;
-    if (gri_angle_r>=0) {
-       wrist_angle_r = 3*M_PI_2 - a - b + gri_angle_r;
-    }
-    else {
-       wrist_angle_r = 3*M_PI_2 - a - b - gri_angle_r;
-    }
-    float d = atan2(y,-x);                   //angle of base;
+    float a = f+g;                             //angle between horizontal and humerus
+    float b = acos((ulna_squared + humerus_squared - pow(q,2))/(2*HUMERUS*ULNA)); //angle between humerus and ulna (Law of Cosines)
+    float wrist_angle_r = 3*M_PI_2 - a - b + gri_angle_r; //angle sent to wrist servo (not gripper angle with horizontal)
+    float d = atan2(y,-x);                     //angle of base rotate;
 
-    //IS THIS RIGHT????
+    //set joint angles in radians
     bas_r = d;
     shl_r = a;
     elb_r = b;
