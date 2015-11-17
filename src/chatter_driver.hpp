@@ -10,7 +10,7 @@ public:
     ros::Subscriber sub;
     chatter chat;
 
-    float x, y, z, ga;
+    float x, y, z, ga, gripper_open;
 
     void spin();
     void get_coords(const chatter_tester::user_input::Request msg);

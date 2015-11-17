@@ -60,7 +60,8 @@ void chatter_driver::get_coords(const chatter_tester::user_input::Request msg) {
     x = msg.pick_X;
     y = msg.pick_Y;
     z = msg.pick_Z;
-    ga = 0.0; //angle of gripper with respect to horizontal (-90 to 90 degrees)
+    gripper_open = msg.gripper_open;
+    ga = -85.0; //angle of gripper with respect to horizontal (-90 to 90 degrees)
     ROS_INFO("getcoords: x: %f y: %f z: %f", x, y, z);
     /*TODO: FIGURE OUT WHERE TO STORE PLACE YOURSELF :)*/
 }
@@ -78,8 +79,8 @@ int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
     float g = acos((humerus_squared+pow(q,2)-ulna_squared)/(2*HUMERUS*q));   //angle between q and humerus (Law of Cosines)
     float a = f+g;                             //angle between horizontal and humerus
     float b = acos((ulna_squared + humerus_squared - pow(q,2))/(2*HUMERUS*ULNA)); //angle between humerus and ulna (Law of Cosines)
-    float wrist_angle_r = 3*M_PI_2 - a - b + gri_angle_r; //angle sent to wrist servo (not gripper angle with horizontal)
     float d = atan2(y,-x);                     //angle of base rotate;
+    float wrist_angle_r = 3*M_PI_2 - a - b + gri_angle_r; //angle sent to wrist servo (not gripper angle with horizontal)
 
     //set joint angles in radians
     bas_r = d;
@@ -109,7 +110,7 @@ int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
 
     float elb_angle_r = acos((pow(HUMERUS,2)+pow(ULNA,2)-pow(q,2))/(2*HUMERUS*ULNA));
     float wri_angle_r = (3*M_PI/2) - elb_angle_r - shl_angle_r + gri_angle_r;
-     
+
     float shoulder_angle_degrees = degrees(a);
     float elbow_angle_degrees = degrees(b);
     float wrist_angle_degrees = degrees(c);
@@ -123,7 +124,7 @@ int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
     float wri_pos = wrist_angle_degrees;
     */ //end old stuff
 
-    ROS_INFO("setarm: x: %f y: %f z: %f b: %f s: %f e: %f w: %f", x, y, z, d, a, b, c);
+    ROS_INFO("setarm: x: %f y: %f z: %f b: %f s: %f e: %f w: %f", x, y, z, degrees(bas_r), degrees(shl_r), degrees(elb_r), degrees(wri_r));
     return IK_SUCCESS;
 }
 
