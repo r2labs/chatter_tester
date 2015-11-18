@@ -88,42 +88,6 @@ int chatter_driver::set_arm(float& bas_r, float& shl_r, float& elb_r,
     elb_r = b;
     wri_r = wrist_angle_r;
 
-    /*begin old stuff
-
-    float gri_angle_r = radians(ga);
-    float bas_angle_r = atan2(y, -x);
-    float r = sqrt(pow(x,2) + pow(y,2));
-    float z_prime = z - BASE_HGT - (sin(gri_angle_r)*GRIPPER);
-    float r_prime = r - (cos(gri_angle_r)*GRIPPER);
-    float q = sqrt(pow(r_prime,2) + pow(z_prime,2));
-    float shl_angle_r;
-    if(y>=0) {
-        shl_angle_r = atan2(z_prime, r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
-    }
-    else {
-        shl_angle_r = atan2(z_prime, -r_prime) + acos((pow(HUMERUS,2)+pow(q,2)-pow(ULNA,2))/(2*HUMERUS*q));
-    }
-    if (isnan(shl_angle_r) || isinf(shl_angle_r)) {
-      ROS_INFO("shl angle nan/inf");
-      return IK_ERROR;
-    }
-
-    float elb_angle_r = acos((pow(HUMERUS,2)+pow(ULNA,2)-pow(q,2))/(2*HUMERUS*ULNA));
-    float wri_angle_r = (3*M_PI/2) - elb_angle_r - shl_angle_r + gri_angle_r;
-
-    float shoulder_angle_degrees = degrees(a);
-    float elbow_angle_degrees = degrees(b);
-    float wrist_angle_degrees = degrees(c);
-    float base_angle_degrees = degrees(d);
-
-    // Calculate servo angles
-    // Calc relative to servo midpoint to allow compensation for servo alignment
-    float bas_pos = base_angle_degrees;
-    float shl_pos = shoulder_angle_degrees;
-    float elb_pos = elbow_angle_degrees;
-    float wri_pos = wrist_angle_degrees;
-    */ //end old stuff
-
     ROS_INFO("setarm: x: %f y: %f z: %f b: %f s: %f e: %f w: %f", x, y, z, degrees(bas_r), degrees(shl_r), degrees(elb_r), degrees(wri_r));
     return IK_SUCCESS;
 }
