@@ -26,6 +26,9 @@ public:
         this->nh = nh;
         this->sub = nh.subscribe("/user_interface", 1, &chatter_driver::get_coords, this);
         chat = chatter();
+
+        humerus_squared = HUMERUS*HUMERUS;
+        ulna_squared = ULNA*ULNA;
     }
 
     inline double degrees(double radians) {
@@ -36,8 +39,7 @@ public:
         return degrees * (M_PI / 180.0);
     }
 
-
-// Pre-calculations
-    float humerus_squared = HUMERUS*HUMERUS;
-    float ulna_squared = ULNA*ULNA;
+    // Pre-calculations
+    float humerus_squared;
+    float ulna_squared;
 };
