@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(chatter_tester)
 
-find_package(catkin REQUIRED COMPONENTS roscpp message_generation 
+find_package(catkin REQUIRED COMPONENTS roscpp message_generation
              std_msgs sensor_msgs trajectory_msgs)
+
+add_message_files(
+  FILES
+  set_gripper.msg
+  set_position.msg
+  )
 
 add_service_files(
   FILES
