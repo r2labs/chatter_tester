@@ -69,6 +69,7 @@ void chatter_driver::set_position(const chatter_tester::set_position msg) {
     x = msg.x;
     y = msg.y;
     z = msg.z;
+    ga = msg.ga_d;
     ROS_INFO("set_position: x: %f y: %f z: %f", x, y, z);
 }
 
