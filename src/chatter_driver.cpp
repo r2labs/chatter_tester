@@ -12,9 +12,9 @@ void chatter_driver::spin() {
     ROS_INFO("HERSHAL: chatter spinning...");
 
     ros::Publisher chatter_pub =
-        nh.advertise<trajectory_msgs::JointTrajectory>("tm4c/command", 1000);
+        nh.advertise<trajectory_msgs::JointTrajectory>("tm4c/command", 10);
 
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(5);
 
     trajectory_msgs::JointTrajectory traj;
     traj.joint_names.push_back("al5d_joint_0");
